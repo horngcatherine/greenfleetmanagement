@@ -1,0 +1,67 @@
+{% extends 'base.html' %}
+
+{% block header %}
+<h1>{% block title %}Edit Asset{% endblock %}</h1>
+{% endblock %}
+
+{% block content %}
+
+<form method="POST">
+  <h1 align="center">Edit {{asset.name}}</h1>
+
+  <div class="form-group">
+    <label for="asset_name">Asset Name</label>
+    <input type="text" class="form-control" id="asset_name" name="asset_name" placeholder="{{asset.name}}" />
+  </div>
+  <div class="form-group">
+    <label for="asset_quantity">Quantity</label>
+    <input type="int" class="form-control" id="asset_quantity" name="asset_quantity" placeholder="{{asset.number}}" />
+  </div>
+  <div class="form-group">
+    <label for="asset_mileage">Remaining Mileage</label>
+    <input type="int" class="form-control" id="asset_mileage" name="asset_mileage"
+      placeholder="{{asset.rem_mileage}}" />
+  </div>
+  <div class="form-group">
+    <label for="asset_idle">Remaining Idle Time</label>
+    <input type="int" class="form-control" id="asset_idle" name="asset_idle" placeholder="{{asset.rem_idle}}" />
+  </div>
+  <div class="form-group">
+    <label for="asset_category">Category: {{category.name}}</label>
+    <select name="asset_category" id="asset_category" class="form-control">
+      {% for num in num_cats %}
+      <option value={{num}} {% if cats[num].name==category.name %} selected {% endif %}> {{cats[num].name}}
+      </option>
+      {% endfor %}
+    </select>
+  </div>
+  <div class="form-group">
+    <label for="asset_tech">Retrofit: {{tech.name}}</label>
+    <select name="asset_tech" id="asset_tech" class="form-control">
+      {% for num in num_techs %}
+      <option value={{num}} {% if techs[num].name==tech.name %} selected {% endif %}> {{techs[num].name}}
+      </option>
+      {% endfor %}
+    </select>
+  </div>
+  <br />
+  <button type="submit" class="btn btn-primary">Submit</button>
+</form>
+
+
+<!-- <form method="POST">
+  Name: {{asset.name}}
+  <textarea name="asset_name" id="asset_name" class="form-control" placeholder="{{asset.name}}"></textarea>
+  Property1: {{asset.property1}}
+  <textarea name="asset_property1" id="asset_property1" class="form-control"
+    placeholder="{{asset.property1}}"></textarea>
+  Category: {{asset.category}}
+  <textarea name="asset_category_name" id="asset_category_name" class="form-control"
+    placeholder="{{asset.category}}"></textarea>
+  <br />
+  <div align="center">
+    <button type="submit" class="btn btn-primary">Save Asset</button>
+  </div> -->
+
+</form>
+{% endblock %}

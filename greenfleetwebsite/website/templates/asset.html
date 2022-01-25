@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+
+{% block title %}
+Asset
+{% endblock %}
+
+{% block content%}
+<h1 align="center">Asset</h1>
+
+<ul class="list-group list-group-flush" id="assets">
+  Name: {{ asset.name }}
+  <br>
+  Quantity: {{ asset.number }}
+  <br>
+  Remaining Mileage: {{ asset.rem_mileage }}
+  <br>
+  Remaining Idle Time: {{ asset.rem_idle }}
+  <br>
+  Category: {{asset.getCategory()[0].name}}
+  <br>
+  Retrofit: {{asset.getTech()[0].name}}
+  <form action="/assets/edit-asset/{{ asset.id }}">
+    <input type="submit" class="btn btn-primary" value="Edit Asset" />
+  </form>
+</ul>
+
+{% endblock %}

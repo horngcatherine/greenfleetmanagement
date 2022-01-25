@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+
+{% block header %}
+<h1>{% block title %}New Fleet{% endblock %}</h1>
+{% endblock %}
+
+{% block content %}
+<h1 align="center">New Fleet</h1>
+
+<form method="POST">
+  Name:
+  <textarea name="fleet_name" id="fleet_name" class="form-control"></textarea>
+  Description:
+  <textarea name="fleet_description" id="fleet_description" class="form-control"></textarea>
+
+  <label for="fleet_assets">Assets:</label>
+  <select multiple name="fleet_assets" id="fleet_assets" class="form-control">
+    {% for num in num_assets %}
+    <option value={{num}}>{{assets[num].name}}, {{assets[num].number}}, {{assets[num].getCategory()[0].name}}
+    </option>
+    {% endfor %}
+  </select>
+
+  <br />
+  <div align="center">
+    <button type="submit" class="btn btn-primary">Add Fleet</button>
+  </div>
+</form>
+{% endblock %}

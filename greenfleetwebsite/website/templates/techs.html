@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+
+{% block title %}
+Retrofit Technologies
+{% endblock %}
+
+{% block content%}
+<h1 align="center">Retrofit Technologies</h1>
+
+<ul class="list-group list-group-flush" id="techs">
+  {% for tech in data %}
+  <li class="list-group-item">
+    <!-- <button type="button" class="btn btn-light" onClick="edittech({{ tech.id }})">
+      <span aria-hidden="true">{{ tech.name }}</span>
+    </button> -->
+    <form action="/techs/tech/{{ tech.id }}">
+      <input type="submit" class="btn btn-light" value="{{ tech.name }}" />
+    </form>
+
+    <button type="button" class="close" onClick="deletetech({{ tech.id }})">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </li>
+  {% endfor %}
+  <form action="/techs/new-tech">
+    <input type="submit" class="btn btn-primary" value="New tech" />
+  </form>
+</ul>
+
+
+{% endblock %}

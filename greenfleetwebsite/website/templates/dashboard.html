@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+
+{% block title %}
+Dashboard
+{% endblock %}
+
+{% block content%}
+<h1 align="center">Dashboard</h1>
+
+<h2 align="center">Assets</h2>
+
+<ul class="list-group list-group-flush" id="assets">
+  {% for asset in assets %}
+  <li class="list-group-item">
+    {{ asset.name }}
+  </li>
+  {% endfor %}
+  <form action="/assets">
+    <input type="submit" class="btn btn-primary" value="All Assets" />
+  </form>
+</ul>
+
+<h2 align="center">Fleets</h2>
+
+<ul class="list-group list-group-flush" id="fleets">
+  {% for fleet in fleets %}
+  <li class="list-group-item">
+    {{ fleet.name }}
+  </li>
+  {% endfor %}
+  <form action="/fleets">
+    <input type="submit" class="btn btn-primary" value="All Fleets" />
+  </form>
+</ul>
+{% endblock %}

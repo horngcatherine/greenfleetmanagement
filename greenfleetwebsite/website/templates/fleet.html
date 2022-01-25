@@ -1,0 +1,24 @@
+{% extends "base.html" %}
+
+{% block title %}
+Fleet
+{% endblock %}
+
+{% block content%}
+<h1 align="center">Fleet</h1>
+
+<ul class="list-group list-group-flush" id="fleets">
+  Name: {{ fleet.name }}
+  <br>
+  Description: {{ fleet.description }}
+  <br>
+  Assets:
+  {% for a in assets %}
+  {{a.name}},
+  {% endfor %}
+  <form action="/fleets/edit-fleet/{{ fleet.id }}">
+    <input type="submit" class="btn btn-primary" value="Edit Fleet" />
+  </form>
+</ul>
+
+{% endblock %}

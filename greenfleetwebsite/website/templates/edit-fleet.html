@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+
+{% block header %}
+<h1>{% block title %}Edit Fleet{% endblock %}</h1>
+{% endblock %}
+
+{% block content %}
+
+<form method="POST">
+  <h1 align="center">Edit {{fleet.name}}</h1>
+
+  <div class="form-group">
+    <label for="fleet_name">Fleet Name</label>
+    <input type="text" class="form-control" id="fleet_name" name="fleet_name" placeholder="{{fleet.name}}" />
+  </div>
+  <div class="fleet_description">
+    <label for="fleet_description">Description</label>
+    <input type="text" class="form-control" id="fleet_description" name="fleet_description"
+      placeholder="{{fleet.description}}" />
+  </div>
+  <label for="fleet_assets">Assets:</label>
+  <select multiple name="fleet_assets" id="fleet_assets" class="form-control">
+    {% for num in num_assets %}
+    <option value={{num}}>{{assets[num].name}}, {{assets[num].number}}, {{assets[num].getCategory()[0].name}}
+    </option>
+    {% endfor %}
+  </select>
+  <br />
+  <button type="submit" class="btn btn-primary">Submit</button>
+</form>
+
+
+
+</form>
+{% endblock %}

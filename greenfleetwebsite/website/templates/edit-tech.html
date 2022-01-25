@@ -1,0 +1,41 @@
+{% extends 'base.html' %}
+
+{% block header %}
+<h1>{% block title %}Edit Tech{% endblock %}</h1>
+{% endblock %}
+
+{% block content %}
+
+<form method="POST">
+  <h1 align="center">Edit {{tech.name}}</h1>
+
+  <div class="form-group">
+    <label for="tech_name">Retrofit Name</label>
+    <input type="text" class="form-control" id="tech_name" name="tech_name" placeholder="{{tech.name}}" />
+  </div>
+  <div class="form-group">
+    <label for="tech_description">Retrofit Description</label>
+    <input type="text" class="form-control" id="tech_description" name="tech_description"
+      placeholder="{{tech.description}}" />
+  </div>
+  <br />
+  <button type="submit" class="btn btn-primary">Submit</button>
+</form>
+
+
+<!-- <form method="POST">
+  Name: {{tech.name}}
+  <textarea name="tech_name" id="tech_name" class="form-control" placeholder="{{tech.name}}"></textarea>
+  Property1: {{tech.property1}}
+  <textarea name="tech_property1" id="tech_property1" class="form-control"
+    placeholder="{{tech.property1}}"></textarea>
+  Category: {{tech.category}}
+  <textarea name="tech_category_name" id="tech_category_name" class="form-control"
+    placeholder="{{tech.category}}"></textarea>
+  <br />
+  <div align="center">
+    <button type="submit" class="btn btn-primary">Save tech</button>
+  </div> -->
+
+</form>
+{% endblock %}

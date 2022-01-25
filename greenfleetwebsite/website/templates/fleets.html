@@ -1,0 +1,29 @@
+{% extends "base.html" %}
+
+{% block title %}
+Fleets
+{% endblock %}
+
+{% block content%}
+<h1 align="center">Fleets</h1>
+
+<ul class="list-group list-group-flush" id="fleets">
+  {% for fleet in data %}
+  <li class="list-group-item">
+    <!-- <button type="button" class="btn btn-light" onClick="editFleet({{ fleet.id }})">
+      <span aria-hidden="true">{{ fleet.name }}</span>
+    </button> -->
+    <form action="/fleets/fleet/{{ fleet.id }}">
+      <input type="submit" class="btn btn-light" value="{{ fleet.name }}" />
+    </form>
+
+    <button type="button" class="close" onClick="deleteFleet({{ fleet.id }})">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </li>
+  {% endfor %}
+  <form action="/fleets/new-fleet">
+    <input type="submit" class="btn btn-primary" value="New Fleet" />
+  </form>
+</ul>
+{% endblock %}
