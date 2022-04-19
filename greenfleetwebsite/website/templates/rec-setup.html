@@ -1,0 +1,54 @@
+{% extends 'base.html' %}
+
+{% block header %}
+<h1>{% block title %}New Recommendation{% endblock %}</h1>
+{% endblock %}
+
+{% block content %}
+<h1 align="center">New Recommendation for {{fleet.name}}</h1>
+
+<form method="POST">
+  Short-term Budget:
+  <textarea name="shortbudget" id="shortbudget" class="form-control"></textarea>
+  Long-term Budget:
+  <textarea name="longbudget" id="longbudget" class="form-control"></textarea>
+
+  <label for="obj">Objective:</label>
+  <select name="obj" id="obj" class="form-control">
+    {% for num in num_obj %}
+    <option value={{num}}>{{objs[num].name}}
+    </option>
+    {% endfor %}
+  </select>
+
+  Used Retrofits:
+  {% for t in used_rets %}
+  {{t.name}},
+  {% endfor %}
+  <br>
+
+  <label for="rec_techs">Additional Retrofits:</label>
+  <select multiple name="rec_techs" id="rec_techs" class="form-control">
+    {% for num in num_rets %}
+    <option value={{num}}>{{rets[num].name}}
+    </option>
+    {% endfor %}
+  </select>
+
+  <label for="rec_polluts">Pollutants:</label>
+  <select multiple name="rec_polluts" id="rec_polluts" class="form-control">
+    {% for num in num_pol %}
+    <option value={{num}}>{{polls[num].name}}
+    </option>
+    {% endfor %}
+  </select>
+
+  Emission reduction:
+  <textarea name="redux" id="redux" class="form-control"></textarea>
+
+  <br />
+  <div align="center">
+    <button type="submit" class="btn btn-primary">New Recommendation</button>
+  </div>
+</form>
+{% endblock %}

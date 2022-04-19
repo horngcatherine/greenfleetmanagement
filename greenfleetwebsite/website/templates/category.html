@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+
+{% block title %}
+Retrofit Technology
+{% endblock %}
+
+{% block content%}
+<h1 align="center">Category</h1>
+
+<ul class="list-group list-group-flush" id="categories">
+  Name: {{ category.name }}
+  <br>
+  Description: {{ category.description }}
+  <br>
+  <form action="/categories/edit-category/{{ category.id }}">
+    <input type="submit" class="btn btn-primary" value="Edit Retrofit" />
+  </form>
+</ul>
+
+{% endblock %}

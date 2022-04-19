@@ -1,0 +1,27 @@
+{% extends 'base.html' %}
+
+{% block header %}
+<h1>{% block title %} Upper Bound {% endblock %}</h1>
+{% endblock %}
+
+{% block content %}
+<h1 align="center">Upper Bounds for {{fleet.name}}</h1>
+
+<form method="POST">
+
+  {% for a in num_assets %}
+  <div align="center"><b>{{assets[a].getType().name}}:</b></div>
+  {% for r1 in num_retros %}
+  {% for r2 in num_retros %}
+  {{retros[r1].name}} to {{retros[r2].name}}
+  <input name="{{a}}_{{r1}}_{{r2}}" id="{{a}}_{{r1}}_{{r2}}" class="form-control" value="1"></input>
+  {% endfor %}
+  {% endfor %}
+  {% endfor %}
+  <br>
+  <br />
+  <div align="center">
+    <button type="submit" class="btn btn-primary">Recommend</button>
+  </div>
+</form>
+{% endblock %}

@@ -13,11 +13,19 @@ Fleet
   Description: {{ fleet.description }}
   <br>
   Assets:
-  {% for a in assets %}
-  {{a.name}},
+  <br>
+  {% for a in fleet.getAssetsinFleet()[0] %}
+  {{a.name}}
   {% endfor %}
+  <br>
+  {{fleet.getAssetsinFleet()[1]}}
+  <br>
+  {{fleet.getAssetsinFleet()[2]}}
   <form action="/fleets/edit-fleet/{{ fleet.id }}">
     <input type="submit" class="btn btn-primary" value="Edit Fleet" />
+  </form>
+  <form action="/recommendations/rec-setup/{{ fleet.id }}">
+    <input type="submit" class="btn btn-primary" value="New Recommendation" />
   </form>
 </ul>
 

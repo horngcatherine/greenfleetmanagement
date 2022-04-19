@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+
+{% block title %}
+Categories
+{% endblock %}
+
+{% block content%}
+<h1 align="center">Categories</h1>
+
+<ul class="list-group list-group-flush" id="categories">
+  {% for category in data %}
+  <li class="list-group-item">
+    <!-- <button type="button" class="btn btn-light" onClick="editcategory({{ category.id }})">
+      <span aria-hidden="true">{{ category.name }}</span>
+    </button> -->
+    <form action="/categories/category/{{ category.id }}">
+      <input type="submit" class="btn btn-light" value="{{ category.name }}" />
+    </form>
+
+    <button type="button" class="close" onClick="deletecategory({{ category.id }})">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </li>
+  {% endfor %}
+  <form action="/categories/new-category">
+    <input type="submit" class="btn btn-primary" value="New category" />
+  </form>
+</ul>
+
+
+{% endblock %}

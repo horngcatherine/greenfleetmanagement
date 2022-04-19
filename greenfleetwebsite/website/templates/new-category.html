@@ -1,0 +1,20 @@
+{% extends 'base.html' %}
+
+{% block header %}
+<h1>{% block title %}New Category{% endblock %}</h1>
+{% endblock %}
+
+{% block content %}
+<h1 align="center">New Category</h1>
+
+<form method="POST">
+  Name:
+  <textarea name="category_name" id="category_name" class="form-control"></textarea>
+  Description:
+  <textarea name="category_description" id="category_description" class="form-control"></textarea>
+  <br />
+  <div align="center">
+    <button type="submit" class="btn btn-primary">Add category</button>
+  </div>
+</form>
+{% endblock %}

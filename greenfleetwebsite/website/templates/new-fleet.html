@@ -16,11 +16,16 @@
   <label for="fleet_assets">Assets:</label>
   <select multiple name="fleet_assets" id="fleet_assets" class="form-control">
     {% for num in num_assets %}
-    <option value={{num}}>{{assets[num].name}}, {{assets[num].number}}, {{assets[num].getCategory()[0].name}}
+    {% for t_num in num_techs[num] %}
+    <option value="{{num}};{{t_num}}">{{assets[num].name}}, {{assets[num].getType().name}},
+      {{assets[num].getTech()[0][t_num].name}}
     </option>
+    {% endfor %}
     {% endfor %}
   </select>
 
+  Number per asset (separate numbers by commas):
+  <textarea name="asset_num" id="asset_num" class="form-control"></textarea>
   <br />
   <div align="center">
     <button type="submit" class="btn btn-primary">Add Fleet</button>

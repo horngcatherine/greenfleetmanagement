@@ -9,14 +9,8 @@ class User(db.Model, UserMixin):
     password = db.Column(db.String(150))
     first_name = db.Column(db.String(150))
     last_name = db.Column(db.String(150))
-    managesFleets = db.relationship('ManagesFleet',
-                                    cascade="all, delete-orphan")
-    ownsAssets = db.relationship('OwnsAsset',
-                                 cascade="all, delete-orphan")
-    ownsTech = db.relationship('OwnsTech',
-                               cascade="all, delete-orphan")
-    ownsPollut = db.relationship('OwnsPollut',
-                                 cascade="all, delete-orphan")
+    managesFleets = db.relationship('ManagesFleet')
+    ownsAssets = db.relationship('OwnsAsset')
 
     def getAssets(self):
         """
@@ -45,44 +39,30 @@ class User(db.Model, UserMixin):
                 fleets.append(fleet)
         return fleets
 
-    def getTech(self):
-        """
-        Returns the fleets the user manages
-        """
-        techs = []
-        # query to get all ownsAssets with
-        ownsTechs = OwnsTech.query.filter_by(user_id=self.id).all()
-        for ownsTech in ownsTechs:  # ownsAsset is of type OwnsAsset
-            techOwned = Tech.query.filter_by(
-                id=ownsTech.tech_id).all()
-            for tech in techOwned:
-                techs.append(tech)
-        return techs
-
 
 class Fleet(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(150), unique=True)
     description = db.Column(db.String(150))
-    containsAssets = db.relationship('ContainsAsset',
-                                     cascade="all, delete-orphan")
-    managesFleets = db.relationship('ManagesFleet',
-                                    cascade="all, delete-orphan")
+    containsAssets = db.relationship('ContainsAsset')
+    managesFleets = db.relationship('ManagesFleet')
+    opt = db.relationship('OptWith')
 
     def getAssetsinFleet(self):
         """
         Returns the assets in the fleet.
         """
-        assets = []
         # ContainsAssets where the fleet id matches the fleet id
         containsAssets = ContainsAsset.query.filter_by(fleet_id=self.id).all()
+        assets = []
+        techs = []
+        nums = []
         for containsAsset in containsAssets:
             # get assets with the same id as the asset id in containsAsset
-            assetsinfleet = Asset.query.filter_by(
-                id=containsAsset.asset_id).all()
-            for asset in assetsinfleet:
-                assets.append(asset)
-        return assets
+            assets.append(containsAsset.get_assets())
+            techs.append(containsAsset.get_tech())
+            nums.append(containsAsset.get_num_assets())
+        return assets, techs, nums
 
     def getManager(self):
         """
@@ -96,21 +76,36 @@ class Fleet(db.Model):
                 m.append(manager)
         return m
 
+    def getRetrofitsUsed(self):
+        techs = []
+        assets = self.getAssetsinFleet()
+        for asset in assets:
+            techs.append(asset.getTech())
+        return techs
+
+
+class Type(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(150), unique=True)
+    description = db.Column(db.String(150))
+    ofAssetType = db.relationship('OfAssetType')
+
 
 class Asset(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    name = db.Column(db.String(150), unique=True)
-    number = db.Column(db.Integer)
-    rem_mileage = db.Column(db.Float)
-    rem_idle = db.Column(db.Float)
-    ownsAssets = db.relationship('OwnsAsset',
-                                 cascade="all, delete-orphan")
-    containsAssets = db.relationship('ContainsAsset',
-                                     cascade="all, delete-orphan")
-    isInCategory = db.relationship('IsInCategory',
-                                   cascade="all, delete-orphan")
-    usesTech = db.relationship('UsesTech',
-                               cascade="all, delete-orphan")
+    name = db.Column(db.String(150))
+    made = db.Column(db.Integer)
+    remaining_yrs = db.Column(db.Integer)
+    ofAssetType = db.relationship('OfAssetType')
+    isOwnedBy = db.relationship('OwnsAsset')
+    isInCategory = db.relationship('IsInCategory')
+    usesTech = db.relationship('UsesTech')
+    containsAssets = db.relationship('ContainsAsset')
+
+    def getType(self):
+        ofAssetType = OfAssetType.query.filter_by(asset_id=self.id).first()
+        typ = Type.query.filter_by(id=ofAssetType.asset_type_id).first()
+        return typ
 
     def getOwner(self):
         """
@@ -140,13 +135,9 @@ class Asset(db.Model):
         """
         Returns the category asset is in.
         """
-        c = []
-        inCats = IsInCategory.query.filter_by(asset_id=self.id).all()
-        for inCat in inCats:
-            cats = Category.query.filter_by(id=inCat.category_id).all()
-            for cat in cats:
-                c.append(cat)
-        return c
+        inCats = IsInCategory.query.filter_by(asset_id=self.id).first()
+        cat = Category.query.filter_by(id=inCats.category_id).all()
+        return cat[0]
 
     def setCategory(self, category):
         """
@@ -162,13 +153,22 @@ class Asset(db.Model):
         """
         Returns the technology asset uses.
         """
-        t = []
         useTechs = UsesTech.query.filter_by(asset_id=self.id).all()
+        techs = []
+        num_techs = []
         for useTech in useTechs:
-            techs = Tech.query.filter_by(id=useTech.tech_id).all()
-            for tech in techs:
-                t.append(tech)
-        return t
+            num = useTech.num_assets
+            tech = Tech.query.filter_by(id=useTech.tech_id).first()
+            techs.append(tech)
+            num_techs.append(num)
+        return techs, num_techs
+
+    def getTechNames(self):
+        techs, _ = self.getTech()
+        names = []
+        for t in techs:
+            names.append(t.name)
+        return names
 
     def setTech(self, tech):
         """
@@ -181,12 +181,27 @@ class Asset(db.Model):
         return
 
 
+class OfAssetType(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    asset_id = db.Column(db.Integer, db.ForeignKey('asset.id'))
+    asset_type_id = db.Column(db.Integer, db.ForeignKey('type.id'))
+
+    def link_OfAssetType(self):
+        a = Asset.query.get(self.asset_id)
+        a.ofAssetType.append(self)
+        db.session.add(a)
+        b = Type.query.get(self.asset_type_id)
+        b.ofAssetType.append(self)
+        db.session.add(b)
+        db.session.add(self)
+        db.session.commit()
+
+
 class Category(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(150), unique=True)
     description = db.Column(db.String(150))
-    isInCategory = db.relationship('IsInCategory',
-                                   cascade="all, delete-orphan")
+    isInCategory = db.relationship('IsInCategory')
 
     def getAssetsInCat(self):
         """
@@ -206,12 +221,8 @@ class Tech(db.Model):
     name = db.Column(db.String(150), unique=True)
     description = db.Column(db.String(150))
     public = db.Column(db.Boolean)
-    usesTech = db.relationship('UsesTech',
-                               cascade="all, delete-orphan")
-    isOwnedBy = db.relationship('OwnsTech',
-                                cascade="all, delete-orphan")
-    opt = db.relationship('OptTech',
-                          cascade="all, delete-orphan")
+    usesTech = db.relationship('UsesTech')
+    opt = db.relationship('OptTech')
 
 
 class Pollutant(db.Model):
@@ -219,41 +230,69 @@ class Pollutant(db.Model):
     name = db.Column(db.String(150), unique=True)
     description = db.Column(db.String(150))
     public = db.Column(db.Boolean)
-    isOwnedBy = db.relationship('OwnsPollut',
-                                cascade="all, delete-orphan")
-    opt = db.relationship('OptPollut',
-                          cascade="all, delete-orphan")
+    opt = db.relationship('OptPollut')
 
 
 class Objective(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(150), unique=True)
     description = db.Column(db.String(150))
-    opt = db.relationship('OptObj',
-                          cascade="all, delete-orphan")
+    opt = db.relationship('OptObj')
+
+    def ampl_obj(self):
+        if self.id == 1:
+            return "long_term_cost"
+        if self.id == 2:
+            return "short_term_cost"
 
 
 class Optimization(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    budget = db.Column(db.Integer)
-    objective = db.relationship('OptObj',
-                                cascade="all, delete-orphan")
-    pollutants = db.relationship('OptPollut',
-                                 cascade="all, delete-orphan")
-    retrofits = db.relationship('OptTech',
-                                cascade="all, delete-orphan")
+    short_budget = db.Column(db.Integer)
+    long_budget = db.Column(db.Integer)
+    em_redux_req = db.Column(db.String(150))
+    fleet = db.relationship('OptWith')
+    objective = db.relationship('OptObj')
+    pollutants = db.relationship('OptPollut')
+    retrofits = db.relationship('OptTech')
 
+    def get_em_redux_req(self):
+        req = []
+        split = self.em_redux_req.split(',')
+        if len(split) == 1:
+            return []
+        print(list(map(float, split)))
+        return list(map(float, split))
 
-class OwnsTech(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
-    tech_id = db.Column(db.Integer, db.ForeignKey('tech.id'))
+    def get_fleet(self):
+        optwith = self.fleet[0]
+        fleet_id = optwith.fleet_id
+        fleet = Fleet.query.get(fleet_id)
+        return fleet
 
+    def get_objective(self):
+        optobj = self.objective[0]
+        obj_id = optobj.obj_id
+        obj = Objective.query.get(obj_id)
+        return obj
 
-class OwnsPollut(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
-    pollut_id = db.Column(db.Integer, db.ForeignKey('pollutant.id'))
+    def get_pollutants(self):
+        polls = []
+        optpols = self.pollutants
+        for optpol in optpols:
+            poll_id = optpol.pollut_id
+            poll = Pollutant.query.get(poll_id)
+            polls.append(poll)
+        return polls
+
+    def get_retrofits(self):
+        retros = []
+        opttechs = self.retrofits
+        for opttech in opttechs:
+            re_id = opttech.tech_id
+            r = Tech.query.get(re_id)
+            retros.append(r)
+        return retros
 
 
 class ManagesFleet(db.Model):
@@ -261,29 +300,91 @@ class ManagesFleet(db.Model):
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     fleet_id = db.Column(db.Integer, db.ForeignKey('fleet.id'))
 
+    def link_ManagesFleet(self):
+        a = User.query.get(self.user_id)
+        a.managesFleets.append(self)
+        db.session.add(a)
+        b = Pollutant.query.get(self.pollut_id)
+        b.managesFleets.append(self)
+        db.session.add(b)
+        db.session.add(self)
+        db.session.commit()
+
 
 class OwnsAsset(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
     asset_id = db.Column(db.Integer, db.ForeignKey('asset.id'))
 
+    def link_OwnsAsset(self):
+        a = User.query.get(self.user_id)
+        a.ownsAssets.append(self)
+        db.session.add(a)
+        b = Asset.query.get(self.asset_id)
+        b.isOwnedBy.append(self)
+        db.session.add(b)
+        db.session.add(self)
+        db.session.commit()
+
 
 class ContainsAsset(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     fleet_id = db.Column(db.Integer, db.ForeignKey('fleet.id'))
     asset_id = db.Column(db.Integer, db.ForeignKey('asset.id'))
+    asset_tech_id = db.Column(db.Integer, db.ForeignKey('tech.id'))
+    num_assets = db.Column(db.Integer)
+
+    def link_ContainsAsset(self):
+        a = Asset.query.get(self.asset_id)
+        a.containsAssets.append(self)
+        db.session.add(a)
+        b = Fleet.query.get(self.fleet_id)
+        b.containsAssets.append(self)
+        db.session.add(b)
+        db.session.add(self)
+        db.session.commit()
+
+    def get_assets(self):
+        return Asset.query.get(self.asset_id)
+
+    def get_tech(self):
+        return Tech.query.get(self.asset_tech_id)
+
+    def get_num_assets(self):
+        return self.num_assets
 
 
 class IsInCategory(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    asset_id = db.Column(db.Integer, db.ForeignKey('asset.id'))
     category_id = db.Column(db.Integer, db.ForeignKey('category.id'))
+    asset_id = db.Column(db.Integer, db.ForeignKey('asset.id'))
+
+    def link_IsInCategory(self):
+        a = Asset.query.get(self.asset_id)
+        a.isInCategory.append(self)
+        db.session.add(a)
+        b = Category.query.get(self.category_id)
+        b.isInCategory.append(self)
+        db.session.add(b)
+        db.session.add(self)
+        db.session.commit()
 
 
 class UsesTech(db.Model):
     id = db.Column(db.Integer, primary_key=True)
-    asset_id = db.Column(db.Integer, db.ForeignKey('asset.id'))
     tech_id = db.Column(db.Integer, db.ForeignKey('tech.id'))
+    asset_id = db.Column(db.Integer, db.ForeignKey('asset.id'))
+    num_assets = db.Column(db.Integer)
+
+    def link_UsesTech(self):
+        a = Asset.query.get(self.asset_id)
+        a.usesTech.append(self)
+        db.session.add(a)
+        b = Tech.query.get(self.tech_id)
+        b.usesTech.append(self)
+        db.session.add(b)
+        db.session.add(self)
+        db.session.commit()
 
 
 class OptPollut(db.Model):
@@ -291,14 +392,60 @@ class OptPollut(db.Model):
     opt_id = db.Column(db.Integer, db.ForeignKey('optimization.id'))
     pollut_id = db.Column(db.Integer, db.ForeignKey('pollutant.id'))
 
+    def link_OptPollut(self):
+        a = Optimization.query.get(self.opt_id)
+        a.pollutants.append(self)
+        db.session.add(a)
+        b = Pollutant.query.get(self.pollut_id)
+        b.opt.append(self)
+        db.session.add(b)
+        db.session.add(self)
+        db.session.commit()
+
 
 class OptTech(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     opt_id = db.Column(db.Integer, db.ForeignKey('optimization.id'))
     tech_id = db.Column(db.Integer, db.ForeignKey('tech.id'))
 
+    def link_OptTech(self):
+        a = Optimization.query.get(self.opt_id)
+        a.retrofits.append(self)
+        db.session.add(a)
+        b = Tech.query.get(self.tech_id)
+        b.opt.append(self)
+        db.session.add(b)
+        db.session.add(self)
+        db.session.commit()
+
 
 class OptObj(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     opt_id = db.Column(db.Integer, db.ForeignKey('optimization.id'))
     obj_id = db.Column(db.Integer, db.ForeignKey('objective.id'))
+
+    def link_OptObj(self):
+        a = Optimization.query.get(self.opt_id)
+        a.objective.append(self)
+        db.session.add(a)
+        b = Objective.query.get(self.obj_id)
+        b.opt.append(self)
+        db.session.add(b)
+        db.session.add(self)
+        db.session.commit()
+
+
+class OptWith(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    opt_id = db.Column(db.Integer, db.ForeignKey('optimization.id'))
+    fleet_id = db.Column(db.Integer, db.ForeignKey('fleet.id'))
+
+    def link_OptWith(self):
+        a = Optimization.query.get(self.opt_id)
+        a.fleet.append(self)
+        db.session.add(a)
+        b = Fleet.query.get(self.fleet_id)
+        b.opt.append(self)
+        db.session.add(b)
+        db.session.add(self)
+        db.session.commit()

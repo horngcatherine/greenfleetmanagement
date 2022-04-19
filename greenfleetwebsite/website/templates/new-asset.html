@@ -10,28 +10,40 @@
 <form method="POST">
   Name:
   <textarea name="asset_name" id="asset_name" class="form-control"></textarea>
-  Quantity:
-  <textarea name="asset_quantity" id="asset_quantity" class="form-control"></textarea>
-  Remaining Mileage:
-  <textarea name="asset_mileage" id="asset_mileage" class="form-control"></textarea>
-  Remaining Idle Time:
-  <textarea name="asset_idle" id="asset_idle" class="form-control"></textarea>
+
+  <label for="asset">Asset Type:</label>
+  <select name="asset" id="asset" class="form-control">
+    {% for num in num_typs %}
+    <option value={{num}}>{{typs[num].name}}</option>
+    {% endfor %}
+  </select>
+
+  Made:
+  <textarea name="asset_made" id="asset_made" class="form-control"></textarea>
+
+  Remaining Years:
+  <textarea name="asset_remaining" id="asset_remaining" class="form-control"></textarea>
+
   <label for="asset_category">Category:</label>
   <select name="asset_category" id="asset_category" class="form-control">
     {% for num in num_cats %}
     <option value={{num}}>{{cats[num].name}}</option>
     {% endfor %}
   </select>
+
   <label for="asset_tech">Technology:</label>
-  <select name="asset_tech" id="asset_tech" class="form-control">
+  <select multiple name="asset_tech" id="asset_tech" class="form-control">
     {% for num in num_techs %}
     <option value={{num}}>{{techs[num].name}}</option>
     {% endfor %}
   </select>
 
+  Number per tech (separate numbers by commas):
+  <textarea name="asset_tech_quant" id="asset_tech_quant" class="form-control"></textarea>
   <br />
   <div align="center">
     <button type="submit" class="btn btn-primary">Add Asset</button>
   </div>
+
 </form>
 {% endblock %}

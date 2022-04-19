@@ -12,7 +12,7 @@ Dashboard
 <ul class="list-group list-group-flush" id="assets">
   {% for asset in assets %}
   <li class="list-group-item">
-    {{ asset.name }}
+    {{ asset.getType().name }}, {{asset.made}}, {{asset.remaining_yrs}}
   </li>
   {% endfor %}
   <form action="/assets">

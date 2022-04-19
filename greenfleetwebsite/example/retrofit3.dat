@@ -1,0 +1,32 @@
+# Basic data file describing the size of the problem
+
+param numVehicleTypes = 68;
+	# 1 means class 8 1990 model year dumps w/ low mileage
+	# 2 means class 8 1991 model year dumps w/ low mileage
+	# and so on...
+	# 18 means class 8 1990 model year dumps w/ high mileage
+	# 19 means class 8 1991 model year dumps w/ high mileage
+	# and so on...
+	# 35 means class 6 1990 model year stakes w/ low mileage
+	# 36 means class 6 1991 model year stakes w/ low mileage
+	# and so on...
+	# 52 means class 6 1990 model year stakes w/ high mileage
+	# 53 means class 6 1991 model year stakes w/ high mileage
+	# and so on...
+
+param numRetrofitTypes = 7;
+	# 1 is no retrofit
+	# 2 is DOC
+	# 3 is FTF
+	# 4 is PDPF
+	# 5 is ADPF
+	# 6 is replace with new (2007 standard) truck
+	# 7 is CNG Conversion
+
+param numPollutants = 1;
+	# 1 is PM2.5
+	# 2 is CO
+	# 3 is NOx
+	# 4 is HC
+
+
