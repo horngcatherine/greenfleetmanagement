@@ -130,8 +130,6 @@ def run_optimization(model_file, objective,
         LB.setValues([lb])
         print('Set long term budget')
 
-        print(em_redux_req)
-
         frac = ampl.getParameter('frac')
         frac.setValues(em_redux_req)
         print('Set fraction reduction required for pollutant p')
@@ -182,7 +180,7 @@ def run_optimization(model_file, objective,
         ###############################
         if cost:
             ampl.solve()
-            #print('Cost: ', obj.value())
+            message = obj.result()
         else:
             pm = ampl.getParameter('PMfred')
             co = ampl.getParameter('COfred')
@@ -201,25 +199,20 @@ def run_optimization(model_file, objective,
                     for i in range(numPollutants):
                         em[i][a+1, b+1] = 1 - \
                             (eretro[i+1].value()/ebase[i+1].value())
+            message = obj.result()
 
         ###############################
         ######### PRINT VALUES ########
         ###############################
         r = ampl.getVariable('r')
         num_vehicles = r.getValues()
-        #print('Number of vehicles of type i to go from retrofit package j to k:')
-        # print(num_vehicles)
 
         Ebase = ampl.getVariable('Ebase')
         em_wout_retro = Ebase.getValues()
-        #print('Emissions if no retrofits changed:')
-        # print(em_wout_retro)
 
         Eretrofit = ampl.getVariable('Eretrofit')
         em_w_retro = Eretrofit.getValues()
-        #print('Emissions w/ retrofits changed:')
-        # print(em_w_retro)
-        return num_vehicles, em_wout_retro, em_w_retro
+        return num_vehicles, em_wout_retro, em_w_retro, obj.getValues(), message
     except Exception as e:
         print(e)
         raise

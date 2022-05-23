@@ -10,11 +10,9 @@ Assets
 <ul class="list-group list-group-flush" id="assets">
   {% for asset in data %}
   <li class="list-group-item">
-    <!-- <button type="button" class="btn btn-light" onClick="editAsset({{ asset.id }})">
-      <span aria-hidden="true">{{ asset.name }}</span>
-    </button> -->
     <form action="/assets/asset/{{ asset.id }}">
-      <input type="submit" class="btn btn-light" value="{{ asset.name }}" />
+      <input type="submit" class="btn btn-light"
+        value="{{ asset.name }} ({{asset.getType().name}}, {{asset.made}}, {{asset.remaining_yrs}})" />
     </form>
     <button type="button" class="close" onClick="deleteAsset({{ asset.id }})">
       <span aria-hidden="true">&times;</span>

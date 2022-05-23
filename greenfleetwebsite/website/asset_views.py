@@ -26,6 +26,11 @@ def view_assets():
 def delete_asset():
     asset = get_asset(request.data)
     if asset:
+        bs = [asset.ofAssetType, asset.isOwnedBy, asset.isInCategory,
+              asset.usesTech, asset.containsAssets]
+        for a in bs:
+            for b in a:
+                db.session.delete(b)
         db.session.delete(asset)
         db.session.commit()
     return jsonify({})
@@ -42,7 +47,7 @@ def view_asset(asset_id):
                            asset=asset)
 
 
-@asset_views.route('assets/new-asset', methods=['GET', 'POST'])
+@asset_views.route('assets/new-asset', methods=['GET', 'POST', 'INFO'])
 @login_required
 def add_asset():
     # TODO: add to a fleet or can be null
@@ -53,7 +58,17 @@ def add_asset():
     num_cat = len(all_cat)
     num_tech = len(all_tech)
 
+    flash('INFO!', category='information')
+
+    if request.method == 'INFO':
+        if request.form['flash_button']:
+            print("HI")
+            flash('INFO!', category='information')
+        else:
+            print("NOPE")
+
     if request.method == 'POST':
+
         assettyp_num = request.form.get('asset')
         asset_name = request.form.get('asset_name')
         asset_type = all_asset_types[int(assettyp_num)]

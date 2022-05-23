@@ -84,3 +84,13 @@ def add_asset_from_csv(file):
                                 asset_tech)
         assets.append(asset)
     return assets
+
+
+# def edit_asset_db(asset, name, asset_made, remaining, asset_type, asset_category, asset_tech, tech_quant):
+#     asset.name = name
+#     asset.made = asset_made
+#     asset.remaining_yrs = remaining
+#     if (asset.getType != asset_type):
+#         asset.ofAssetType = []  # change asset type
+#     if (asset.getCategory != asset_category):
+#         asset.isInCategory = []  # change asset category

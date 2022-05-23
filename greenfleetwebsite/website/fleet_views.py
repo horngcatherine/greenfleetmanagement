@@ -25,6 +25,10 @@ def view_fleets():
 def delete_fleet():
     fleet = get_fleet(request.data)
     if fleet:
+        fs = [fleet.containsAssets, fleet.managesFleets, fleet.opt]
+        for f in fs:
+            for a in f:
+                db.session.delete(a)
         db.session.delete(fleet)
         db.session.commit()
     return jsonify({})
@@ -35,10 +39,12 @@ def delete_fleet():
 def view_fleet(fleet_id):
     # TODO: make sure only owner of asset can access it
     fleet = Fleet.query.get(fleet_id)  # get asset
+    assets = fleet.getAssetsinFleet()
     return render_template("fleet.html",
                            user=current_user,
                            fleet=fleet,
-                           assets=fleet.getAssetsinFleet())
+                           assets=assets,
+                           num_assets=list(range(len(assets[0]))))
 
 
 @fleet_views.route('/fleets/new-fleet', methods=['GET', 'POST'])

@@ -26,7 +26,7 @@
         <a class="nav-item nav-link" id="dashboard" href="/dashboard">Dashboard</a>
         <a class="nav-item nav-link" id="assets" href="/assets">Assets</a>
         <a class="nav-item nav-link" id="fleets" href="/fleets">Fleets</a>
-        <!--<a class="nav-item nav-link" id="techs" href="/techs">Retrofits</a>-->
+        <a class="nav-item nav-link" id="retrofits" href="/retrofits">Retrofits</a>
         <a class="nav-item nav-link" id="categories" href="/categories">Categories</a>
         <a class="nav-item nav-link" id="logout" href="/logout">Logout</a>
         {% else %}
@@ -37,12 +37,21 @@
     </div>
   </nav>
 
-  {% with messages = get_flashed_messages(with_categories=true) %} {% if
-  messages %} {% for category, message in messages %} {% if category ==
-  'error' %}
+  {% with messages = get_flashed_messages(with_categories=true) %}
+  {% if messages %}
+  {% for category, message in messages %}
+  {% if category == 'error' %}
   <div class="alert alert-danger alter-dismissable fade show" role="alert">
     {{ message }}
     <button type="button" class="close" data-dismiss="alert">
+      <span aria-hidden="true">&times;</span>
+    </button>
+  </div>
+  {% else %}
+  {% if category == 'information' %}
+  <div class="alert alert-primary alert-dismissible fade show" role="alert">
+    <span>{{ message }}</span>
+    <button type="button" class="close" data-dismiss="alert" aria-label="Close">
       <span aria-hidden="true">&times;</span>
     </button>
   </div>
@@ -53,6 +62,7 @@
       <span aria-hidden="true">&times;</span>
     </button>
   </div>
+  {% endif %}
   {% endif %} {% endfor %} {% endif %} {% endwith %}
 
   <div class="container">{% block content %} {% endblock %}</div>
@@ -66,7 +76,7 @@
     integrity="sha384-JZR6Spejh4U02d8jOt6vLEHfe/JQGiRRSQQxSfFWpi1MquVdAyjUar5+76PVCmYl"
     crossorigin="anonymous"></script>
 
-  <!-- <script type="text/javascript" src="{{ url_for('static', filename='index.js') }}"></script> -->
+  <script type="text/javascript" src="{{ url_for('static', filename='index.js') }}"></script>
 </body>
 
 </html>

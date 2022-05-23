@@ -13,17 +13,20 @@ Retrofit Technologies
     <!-- <button type="button" class="btn btn-light" onClick="edittech({{ tech.id }})">
       <span aria-hidden="true">{{ tech.name }}</span>
     </button> -->
-    <form action="/techs/tech/{{ tech.id }}">
+    <form action="/retrofits/retrofit/{{ tech.id }}">
       <input type="submit" class="btn btn-light" value="{{ tech.name }}" />
     </form>
-
-    <button type="button" class="close" onClick="deletetech({{ tech.id }})">
+    <!--if tech is private: show the x button-->
+    {% if tech.public == False %}
+    <button type="button" class="close" onClick="deleteTech({{ tech.id }})">
       <span aria-hidden="true">&times;</span>
     </button>
+    {% endif %}
+
   </li>
   {% endfor %}
-  <form action="/techs/new-tech">
-    <input type="submit" class="btn btn-primary" value="New tech" />
+  <form action="/retrofits/new-retrofit">
+    <input type="submit" class="btn btn-primary" value="New retrofit" />
   </form>
 </ul>
 

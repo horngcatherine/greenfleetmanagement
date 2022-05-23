@@ -9,8 +9,9 @@ class User(db.Model, UserMixin):
     password = db.Column(db.String(150))
     first_name = db.Column(db.String(150))
     last_name = db.Column(db.String(150))
-    managesFleets = db.relationship('ManagesFleet')
-    ownsAssets = db.relationship('OwnsAsset')
+    managesFleets = db.relationship('ManagesFleet', cascade="all, delete")
+    ownsTech = db.relationship('OwnsTech', cascade="all, delete")
+    ownsAssets = db.relationship('OwnsAsset', cascade="all, delete")
 
     def getAssets(self):
         """
@@ -39,6 +40,15 @@ class User(db.Model, UserMixin):
                 fleets.append(fleet)
         return fleets
 
+    def getTechs(self):
+        techs = []
+        ownsTech = OwnsTech.query.filter_by(user_id=self.id).all()
+        for ot in ownsTech:
+            techs_owned = Tech.query.filter_by(id=ot.tech_id).all()
+            for to in techs_owned:
+                techs.append(to)
+        return techs
+
 
 class Fleet(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -64,6 +74,12 @@ class Fleet(db.Model):
             nums.append(containsAsset.get_num_assets())
         return assets, techs, nums
 
+    def getAssetTechNames(self):
+        tech_names = []
+        for t in self.getAssetsinFleet()[1]:
+            tech_names.append(t.name)
+        return tech_names
+
     def getManager(self):
         """
         Returns the user that manages the fleet.
@@ -88,7 +104,10 @@ class Type(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(150), unique=True)
     description = db.Column(db.String(150))
-    ofAssetType = db.relationship('OfAssetType')
+    ofAssetType = db.relationship('OfAssetType', cascade="all, delete")
+    longCost = db.relationship('LongCost', cascade="all, delete")
+    shortCost = db.relationship('ShortCost', cascade="all, delete")
+    applicableType = db.relationship('ApplicableType', cascade="all, delete")
 
 
 class Asset(db.Model):
@@ -96,11 +115,11 @@ class Asset(db.Model):
     name = db.Column(db.String(150))
     made = db.Column(db.Integer)
     remaining_yrs = db.Column(db.Integer)
-    ofAssetType = db.relationship('OfAssetType')
-    isOwnedBy = db.relationship('OwnsAsset')
-    isInCategory = db.relationship('IsInCategory')
-    usesTech = db.relationship('UsesTech')
-    containsAssets = db.relationship('ContainsAsset')
+    ofAssetType = db.relationship('OfAssetType', cascade="all, delete")
+    isOwnedBy = db.relationship('OwnsAsset', cascade="all, delete")
+    isInCategory = db.relationship('IsInCategory', cascade="all, delete")
+    usesTech = db.relationship('UsesTech', cascade="all, delete")
+    containsAssets = db.relationship('ContainsAsset', cascade="all, delete")
 
     def getType(self):
         ofAssetType = OfAssetType.query.filter_by(asset_id=self.id).first()
@@ -201,7 +220,7 @@ class Category(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(150), unique=True)
     description = db.Column(db.String(150))
-    isInCategory = db.relationship('IsInCategory')
+    isInCategory = db.relationship('IsInCategory', cascade="all, delete")
 
     def getAssetsInCat(self):
         """
@@ -221,8 +240,39 @@ class Tech(db.Model):
     name = db.Column(db.String(150), unique=True)
     description = db.Column(db.String(150))
     public = db.Column(db.Boolean)
-    usesTech = db.relationship('UsesTech')
-    opt = db.relationship('OptTech')
+    usesTech = db.relationship('UsesTech', cascade="all, delete")
+    ownsTech = db.relationship('OwnsTech', cascade="all, delete")
+    opt = db.relationship('OptTech', cascade="all, delete")
+    reduxPollut = db.relationship('ReduxPollut', cascade="all, delete")
+    applicableType = db.relationship('ApplicableType', cascade="all, delete")
+    longCost1 = db.relationship(
+        'LongCost', foreign_keys='LongCost.tech1_id', cascade="all, delete")
+    longCost2 = db.relationship(
+        'LongCost', foreign_keys='LongCost.tech2_id', cascade="all, delete")
+    shortCost1 = db.relationship(
+        'ShortCost', foreign_keys='ShortCost.tech1_id', cascade="all, delete")
+    shortCost2 = db.relationship(
+        'ShortCost', foreign_keys='ShortCost.tech2_id', cascade="all, delete")
+
+    def getApplicableTypes(self):
+        app = []
+        for t in self.applicableType:
+            type = Type.query.get(t.type_id)
+            app.append(type)
+        return app
+
+    def getUser(self):
+        ownsTech = OwnsTech.query.filter_by(tech_id=self.id).first()
+        return User.query.filter_by(id=ownsTech.user_id).first()
+
+    def getRedux(self, pollutant):
+        reduxPolluts = ReduxPollut.query.filter_by(tech_id=self.id).all()
+        if len(reduxPolluts) == 0:
+            return 1
+        for rp in reduxPolluts:
+            if pollutant.id == rp.pollut_id:
+                return rp.redux
+        return 1
 
 
 class Pollutant(db.Model):
@@ -230,14 +280,15 @@ class Pollutant(db.Model):
     name = db.Column(db.String(150), unique=True)
     description = db.Column(db.String(150))
     public = db.Column(db.Boolean)
-    opt = db.relationship('OptPollut')
+    opt = db.relationship('OptPollut', cascade="all, delete")
+    reduxPollut = db.relationship('ReduxPollut', cascade="all, delete")
 
 
 class Objective(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     name = db.Column(db.String(150), unique=True)
     description = db.Column(db.String(150))
-    opt = db.relationship('OptObj')
+    opt = db.relationship('OptObj', cascade="all, delete")
 
     def ampl_obj(self):
         if self.id == 1:
@@ -251,17 +302,15 @@ class Optimization(db.Model):
     short_budget = db.Column(db.Integer)
     long_budget = db.Column(db.Integer)
     em_redux_req = db.Column(db.String(150))
-    fleet = db.relationship('OptWith')
-    objective = db.relationship('OptObj')
-    pollutants = db.relationship('OptPollut')
-    retrofits = db.relationship('OptTech')
+    fleet = db.relationship('OptWith', cascade="all, delete")
+    objective = db.relationship('OptObj', cascade="all, delete")
+    pollutants = db.relationship('OptPollut', cascade="all, delete")
+    retrofits = db.relationship('OptTech', cascade="all, delete")
 
     def get_em_redux_req(self):
-        req = []
         split = self.em_redux_req.split(',')
         if len(split) == 1:
             return []
-        print(list(map(float, split)))
         return list(map(float, split))
 
     def get_fleet(self):
@@ -446,6 +495,97 @@ class OptWith(db.Model):
         db.session.add(a)
         b = Fleet.query.get(self.fleet_id)
         b.opt.append(self)
+        db.session.add(b)
+        db.session.add(self)
+        db.session.commit()
+
+
+class ReduxPollut(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    pollut_id = db.Column(db.Integer, db.ForeignKey('pollutant.id'))
+    tech_id = db.Column(db.Integer, db.ForeignKey('tech.id'))
+    redux = db.Column(db.Float)
+
+    def link_ReduxPollut(self):
+        a = Pollutant.query.get(self.pollut_id)
+        a.reduxPollut.append(self)
+        db.session.add(a)
+        c = Tech.query.get(self.tech_id)
+        c.reduxPollut.append(self)
+        db.session.add(c)
+        db.session.add(self)
+        db.session.commit()
+
+
+class OwnsTech(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    tech_id = db.Column(db.Integer, db.ForeignKey('tech.id'))
+
+    def link_OwnsTech(self):
+        a = User.query.get(self.user_id)
+        b = Tech.query.get(self.tech_id)
+        a.ownsTech.append(self)
+        b.ownsTech.append(self)
+        db.session.add(a)
+        db.session.add(b)
+        db.session.add(self)
+        db.session.commit()
+
+
+class ShortCost(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    tech1_id = db.Column(db.Integer, db.ForeignKey('tech.id'))
+    tech2_id = db.Column(db.Integer, db.ForeignKey('tech.id'))
+    type_id = db.Column(db.Integer, db.ForeignKey('type.id'))
+    cost = db.Column(db.Float)
+
+    def link_ShortCost(self):
+        a = Tech.query.get(self.tech1_id)
+        b = Tech.query.get(self.tech2_id)
+        c = Type.query.get(self.type_id)
+        a.shortCost1.append(self)
+        b.shortCost2.append(self)
+        c.shortCost.append(self)
+        db.session.add(a)
+        db.session.add(b)
+        db.session.add(c)
+        db.session.add(self)
+        db.session.commit()
+
+
+class LongCost(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    tech1_id = db.Column(db.Integer, db.ForeignKey('tech.id'))
+    tech2_id = db.Column(db.Integer, db.ForeignKey('tech.id'))
+    type_id = db.Column(db.Integer, db.ForeignKey('type.id'))
+    cost = db.Column(db.Float)
+
+    def link_LongCost(self):
+        a = Tech.query.get(self.tech1_id)
+        b = Tech.query.get(self.tech2_id)
+        c = Type.query.get(self.type_id)
+        a.longCost1.append(self)
+        b.longCost2.append(self)
+        c.longCost.append(self)
+        db.session.add(a)
+        db.session.add(b)
+        db.session.add(c)
+        db.session.add(self)
+        db.session.commit()
+
+
+class ApplicableType(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    tech_id = db.Column(db.Integer, db.ForeignKey('tech.id'))
+    type_id = db.Column(db.Integer, db.ForeignKey('type.id'))
+
+    def link_ApplicableType(self):
+        a = Tech.query.get(self.tech_id)
+        b = Type.query.get(self.type_id)
+        a.applicableType.append(self)
+        b.applicableType.append(self)
+        db.session.add(a)
         db.session.add(b)
         db.session.add(self)
         db.session.commit()

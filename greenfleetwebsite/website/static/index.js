@@ -1,4 +1,5 @@
 function deleteAsset(assetId) {
+  console.log("HI")
   fetch("/assets/delete-asset", {
     method: "POST",
     body: JSON.stringify({ assetId: assetId }),
@@ -24,3 +25,13 @@ function deleteFleet(fleetId) {
     window.location.href = "/fleets";
   });
 }
+
+function deleteTech(techId) {
+  fetch("/retrofits/delete-retrofit", {
+    method: "POST",
+    body: JSON.stringify({ techId: techId }),
+  }).then((_res) => {
+    window.location.href = "/retrofits";
+  });
+}
+

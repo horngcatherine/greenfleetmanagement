@@ -60,7 +60,6 @@ def fleet_prop(fleet_id):
             new_opttech = OptTech(opt_id=new_opt.id,
                                   tech_id=tech.id)
             new_opttech.link_OptTech()
-        print(int_techs)
 
         new_optobj = OptObj(opt_id=new_opt.id,
                             obj_id=obj.id)
@@ -89,9 +88,7 @@ def fleet_prop(fleet_id):
 def get_upper_bounds(opt_id, fleet_id):
     opt = Optimization.query.get(opt_id)
     retros = opt.get_retrofits()
-    print(retros)
     assets = opt.get_fleet().getAssetsinFleet()[0]
-    print(assets)
     num_retros = len(retros)
     num_assets = len(assets)
     if request.method == "POST":
@@ -140,14 +137,14 @@ def recommendation(rec_id):
     # create the csv and return the csv information
     #csv_file = create_csv(assets, polluts, retros)
     model_file = '/Users/catherine/Desktop/cornell/greenfleet/greenfleetmanagement/greenfleetwebsite/example/retrofit3.mod'
-    nv, wout, w = run_optimization(model_file, objective,
-                                   rem_mil_np, rem_idle_np, init_fleet, disc_cost, init_cost,
-                                   upper_bounds, run_em_rate, id_em_rate,
-                                   len(assets), len(retros), len(polluts),
-                                   em_redux_req, sb, lb,
-                                   cost=True, budgets=None, longbudgets=None,
-                                   )
-    #print(nv, wout, w)
+    nv, wout, w, obj, message = run_optimization(model_file, objective,
+                                                 rem_mil_np, rem_idle_np, init_fleet, disc_cost, init_cost,
+                                                 upper_bounds, run_em_rate, id_em_rate,
+                                                 len(assets), len(
+                                                     retros), len(polluts),
+                                                 em_redux_req, sb, lb,
+                                                 cost=True, budgets=None, longbudgets=None,
+                                                 )
     num_veh = []
     for row in nv.toPandas().iterrows():
         val = row[1].values[0]
@@ -165,7 +162,16 @@ def recommendation(rec_id):
     for row in w.toPandas().iterrows():
         withchange.append(row[1].values[0])
 
+    solved = True
+    if (message == 'infeasible'):
+        flash("This optimization is infeasible. Try again.", category='error')
+        solved = False
+    else:
+        flash("Optimal solution found!", category='success')
+
     return render_template("recommendation.html",
+                           obj=obj,
+                           solved=solved,
                            assets=assets,
                            num_vehicles=num_veh,
                            em_wout_retro=without,

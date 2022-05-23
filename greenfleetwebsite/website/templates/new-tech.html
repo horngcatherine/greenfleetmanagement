@@ -1,11 +1,11 @@
 {% extends 'base.html' %}
 
 {% block header %}
-<h1>{% block title %}New Tech{% endblock %}</h1>
+<h1>{% block title %}New Retrofit{% endblock %}</h1>
 {% endblock %}
 
 {% block content %}
-<h1 align="center">New Tech</h1>
+<h1 align="center">New Retrofit</h1>
 
 <form method="POST">
   Name:
@@ -13,8 +13,37 @@
   Description:
   <textarea name="tech_description" id="tech_description" class="form-control"></textarea>
   <br />
+  Applicable:
+  <select multiple name="applicable" id="applicable" class="form-control">
+    {% for num in num_types %}
+    <option value={{num}}>{{types[num].name}}</option>
+    {% endfor %}
+  </select>
+  Reduction:<br />
+  {% for p in num_polluts %}
+  with pollutant {{polluts[p].name}}:
+  <input name="redux_{{p}}" id="redux_{{p}}" class="form-control" value="1"></input>
+  {% endfor %}
+  <br />
+  Short and Long Term Cost:
+  {% for ty in num_types %}
+  <h5 align="center">for {{types[ty].name}}</h5>
+  {% for t in num_techs %}
+  cost of switching from current retrofit to retrofit {{techs[t].name}}:<br />
+  short term:
+  <input name="sc_{{ty}}_this_{{t}}" id="sc_{{ty}}_this_{{t}}" class="form-control" value="1000"></input>
+  long term:
+  <input name="lc_{{ty}}_this_{{t}}" id="lc_{{ty}}_this_{{t}}" class="form-control" value="1000"></input>
+  cost of switching from retrofit {{techs[t].name}} to current retrofit:<br />
+  short term:
+  <input name="sc_{{ty}}_{{t}}_this" id="sc_{{ty}}_{{t}}_this" class="form-control" value="1000"></input>
+  long term:
+  <input name="lc_{{ty}}_{{t}}_this" id="lc_{{ty}}_{t}}_this" class="form-control" value="1000"></input>
+  {% endfor %}
+  {% endfor %}
   <div align="center">
     <button type="submit" class="btn btn-primary">Add tech</button>
   </div>
+  <br />
 </form>
 {% endblock %}

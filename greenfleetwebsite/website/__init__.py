@@ -18,12 +18,14 @@ def create_app():
     from .asset_views import asset_views
     from .rec_views import rec_views
     from .fleet_views import fleet_views
+    from .retrofit_views import retrofit_views
 
     app.register_blueprint(views, url_prefix='/')
     app.register_blueprint(auth, url_prefix='/')
     app.register_blueprint(asset_views, url_prefix='/')
     app.register_blueprint(rec_views, url_prefix='/')
     app.register_blueprint(fleet_views, url_prefix='/')
+    app.register_blueprint(retrofit_views, url_prefix='/')
 
     from .models import User
 

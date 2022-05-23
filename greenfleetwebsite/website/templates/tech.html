@@ -8,13 +8,24 @@ Retrofit Technology
 <h1 align="center">Retrofit Technology</h1>
 
 <ul class="list-group list-group-flush" id="techs">
-  Name: {{ tech.name }}
+  Name: {{ tech.name }} <br>
   <br>
-  Description: {{ tech.description }}
+  Description: {{ tech.description }} <br>
   <br>
+  Applicable Types:<br>
+  {% for type in tech.getApplicableTypes() %}
+  {{type.name}} <br>
+  {% endfor %}
+  <br>
+  Reduction: <br>
+  {% for pollut in polluts%}
+  {{pollut.name}}: {{tech.getRedux(pollut) }} <br>
+  {% endfor %}
+  {% if tech.public == False %}
   <form action="/techs/edit-tech/{{ tech.id }}">
     <input type="submit" class="btn btn-primary" value="Edit Retrofit" />
   </form>
+  {% endif %}
 </ul>
 
 {% endblock %}

@@ -1,11 +1,11 @@
 {% extends "base.html" %}
 
 {% block title %}
-Fleet
+{{ fleet.name }}
 {% endblock %}
 
 {% block content%}
-<h1 align="center">Fleet</h1>
+<h1 align="center">{{ fleet.name }}</h1>
 
 <ul class="list-group list-group-flush" id="fleets">
   Name: {{ fleet.name }}
@@ -14,13 +14,12 @@ Fleet
   <br>
   Assets:
   <br>
-  {% for a in fleet.getAssetsinFleet()[0] %}
-  {{a.name}}
+  {% for i in num_assets %}
+  {{fleet.getAssetsinFleet()[0][i].name}}, {{fleet.getAssetsinFleet()[0][i].getType().name}},
+  {{fleet.getAssetsinFleet()[1][i].name}}, {{fleet.getAssetsinFleet()[2][i]}}
+  <br>
   {% endfor %}
-  <br>
-  {{fleet.getAssetsinFleet()[1]}}
-  <br>
-  {{fleet.getAssetsinFleet()[2]}}
+
   <form action="/fleets/edit-fleet/{{ fleet.id }}">
     <input type="submit" class="btn btn-primary" value="Edit Fleet" />
   </form>

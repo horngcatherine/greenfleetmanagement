@@ -32,4 +32,18 @@ Dashboard
     <input type="submit" class="btn btn-primary" value="All Fleets" />
   </form>
 </ul>
+
+<h2 align="center">Retrofits</h2>
+
+<ul class="list-group list-group-flush" id="retrofits">
+  {% for tech in techs %}
+  <li class="list-group-item">
+    {{ tech.name }}
+  </li>
+  {% endfor %}
+  <form action="/retrofits">
+    <input type="submit" class="btn btn-primary" value="All Retrofits" />
+  </form>
+</ul>
+
 {% endblock %}
