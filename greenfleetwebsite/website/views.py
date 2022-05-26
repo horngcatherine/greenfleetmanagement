@@ -341,14 +341,16 @@ def add_applicable_types(types, techs):
             db.session.commit()
             new_at.link_ApplicableType()
 
+# rendering the HTML page which has the button
+
+
+@views.route('/json')
+def json():
+    return render_template('json.html')
+
 
 @views.route('/')
 def home():
-    # add_asset_types()
-    # add_polluts()
-    # add_objectives()
-    # add_categories()
-    # add_techs()
     return render_template("home.html", user=current_user)
 
 

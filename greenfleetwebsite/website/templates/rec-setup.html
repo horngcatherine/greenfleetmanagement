@@ -9,8 +9,14 @@
 
 <form method="POST">
   Short-term Budget:
+  <div class="popup" onclick="myFunction('shortcost')">ⓘ
+    <span class="popuptext" id="shortcost">Must be greater than the short-term cost of switching retrofits!</span>
+  </div>
   <textarea name="shortbudget" id="shortbudget" class="form-control"></textarea>
   Long-term Budget:
+  <div class="popup" onclick="myFunction('longcost')">ⓘ
+    <span class="popuptext" id="longcost">Must be greater than the long-term cost of switching retrofits!</span>
+  </div>
   <textarea name="longbudget" id="longbudget" class="form-control"></textarea>
 
   <label for="obj">Objective:</label>
