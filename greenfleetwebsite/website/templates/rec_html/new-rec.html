@@ -5,9 +5,20 @@
 {% endblock %}
 
 {% block content %}
-<h1 align="center">New Recommendation for {{fleet.name}}</h1>
+<h1 align="center">New Recommendation</h1>
 
 <form method="POST">
+  Name:
+  <textarea name="name" id="name" class="form-control"></textarea>
+
+
+  Fleet:
+  <select name="fleet" id="fleet" class="form-control">
+    {% for num in num_fleets %}
+    <option value={{num}}>{{fleets[num].name}}</option>
+    {% endfor %}
+  </select>
+
   Short-term Budget:
   <div class="popup" onclick="myFunction('shortcost')">ⓘ
     <span class="popuptext" id="shortcost">Must be greater than the short-term cost of switching retrofits!</span>
@@ -23,20 +34,6 @@
   <select name="obj" id="obj" class="form-control">
     {% for num in num_obj %}
     <option value={{num}}>{{objs[num].name}}
-    </option>
-    {% endfor %}
-  </select>
-
-  Used Retrofits:
-  {% for t in used_rets %}
-  {{t.name}},
-  {% endfor %}
-  <br>
-
-  <label for="rec_techs">Additional Retrofits:</label>
-  <select multiple name="rec_techs" id="rec_techs" class="form-control">
-    {% for num in num_rets %}
-    <option value={{num}}>{{rets[num].name}}
     </option>
     {% endfor %}
   </select>

@@ -1,15 +1,29 @@
 {% extends 'base.html' %}
 
 {% block header %}
-<h1>{% block title %} Upper Bound {% endblock %}</h1>
+<h1>{% block title %} Set Retrofits {% endblock %}</h1>
 {% endblock %}
 
 {% block content %}
-<h1 align="center">Upper Bounds for {{fleet.name}}</h1>
+<h1 align="center">Set Retrofits for {{fleet.name}}</h1>
 
 <form method="POST">
 
-  {% for a in num_assets %}
+  Used Retrofits:
+  {% for t in used %}
+  {{t.name}},
+  {% endfor %}
+  <br>
+
+  <label for="rec_techs">Additional Retrofits:</label>
+  <select multiple name="rec_techs" id="rec_techs" class="form-control">
+    {% for num in num_retros %}
+    <option value={{num}}>{{retros[num].name}}
+    </option>
+    {% endfor %}
+  </select>
+
+  <!-- {% for a in num_assets %}
   <div align="center"><b>{{assets[a].getType().name}}:</b></div>
   {% for r1 in num_retros %}
   {% for r2 in num_retros %}
@@ -17,9 +31,8 @@
   <input name="{{a}}_{{r1}}_{{r2}}" id="{{a}}_{{r1}}_{{r2}}" class="form-control" value="5"></input>
   {% endfor %}
   {% endfor %}
-  {% endfor %}
-  <br>
-  <br />
+  {% endfor %} -->
+
   <div align="center">
     <button type="submit" class="btn btn-primary">Recommend</button>
   </div>

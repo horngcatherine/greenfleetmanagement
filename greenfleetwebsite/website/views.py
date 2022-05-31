@@ -344,13 +344,13 @@ def add_applicable_types(types, techs):
 # rendering the HTML page which has the button
 
 
-@views.route('/json')
-def json():
-    return render_template('json.html')
-
-
 @views.route('/')
 def home():
+    # add_asset_types()
+    # add_polluts()
+    # add_objectives()
+    # add_categories()
+    # add_techs()
     return render_template("home.html", user=current_user)
 
 
@@ -365,11 +365,13 @@ def get_dash():
     assets = current_user.getAssets()
     fleets = current_user.getFleets()
     techs = current_user.getTechs()
+    opts = current_user.getScenarios()
     return render_template("dashboard.html",
                            user=current_user,
                            assets=assets,
                            fleets=fleets,
-                           techs=techs)
+                           techs=techs,
+                           scenarios=opts)
 
 
 ############################

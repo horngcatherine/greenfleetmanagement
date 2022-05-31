@@ -7,10 +7,11 @@ Dashboard
 {% block content%}
 <h1 align="center">Dashboard</h1>
 
+
 <h2 align="center">Assets</h2>
 
 <ul class="list-group list-group-flush" id="assets">
-  {% for asset in assets %}
+  {% for asset in assets[-5:] %}
   <li class="list-group-item">
     {{ asset.getType().name }}, {{asset.made}}, {{asset.remaining_yrs}}
   </li>
@@ -23,7 +24,7 @@ Dashboard
 <h2 align="center">Fleets</h2>
 
 <ul class="list-group list-group-flush" id="fleets">
-  {% for fleet in fleets %}
+  {% for fleet in fleets[-5:] %}
   <li class="list-group-item">
     {{ fleet.name }}
   </li>
@@ -36,13 +37,26 @@ Dashboard
 <h2 align="center">Retrofits</h2>
 
 <ul class="list-group list-group-flush" id="retrofits">
-  {% for tech in techs %}
+  {% for tech in techs[-5:] %}
   <li class="list-group-item">
     {{ tech.name }}
   </li>
   {% endfor %}
   <form action="/retrofits">
     <input type="submit" class="btn btn-primary" value="All Retrofits" />
+  </form>
+</ul>
+
+<h2 align="center">Scenarios</h2>
+
+<ul class="list-group list-group-flush" id="retrofits">
+  {% for sc in scenarios[-5:] %}
+  <li class="list-group-item">
+    {{ sc.name }}, {{ sc.get_objective().name }}, {{ sc.get_fleet().name }}, {{ sc.datetime }}
+  </li>
+  {% endfor %}
+  <form action="/recommendations">
+    <input type="submit" class="btn btn-primary" value="All Scenarios" />
   </form>
 </ul>
 

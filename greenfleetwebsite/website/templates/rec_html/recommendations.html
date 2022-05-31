@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+
+{% block title %}
+Scenarios
+{% endblock %}
+
+{% block content%}
+<h1 align="center">Scenarios</h1>
+
+<ul class="list-group list-group-flush" id="assets">
+  {% for opt in data %}
+  <li class="list-group-item">
+    <form action="/recommendations/recommendation/{{ opt.id }}">
+      <input type="submit" class="btn btn-light"
+        value="{{ opt.name }}, {{ opt.get_objective().name }}, {{ opt.get_fleet().name }}, {{ opt.datetime }}" />
+    </form>
+  </li>
+  {% endfor %}
+  <form action="/recommendations/new-rec">
+    <input type="submit" class="btn btn-primary" value="New Scenario" />
+  </form>
+
+</ul>
+
+
+{% endblock %}

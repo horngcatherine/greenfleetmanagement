@@ -20,7 +20,7 @@ def view_techs():
     for t in Tech.query.all():
         if (t.public == True or t.getUser().id == current_user.id):  # or is owned by the owner
             techs.append(t)
-    return render_template("techs.html",
+    return render_template("retrofit_html/techs.html",
                            user=current_user,
                            data=techs)
 
@@ -55,7 +55,7 @@ def delete_retrofit():
 def view_retrofit(retrofit_id):
     tech = Tech.query.get(retrofit_id)  # get tech
     polluts = Pollutant.query.all()
-    return render_template("tech.html",
+    return render_template("retrofit_html/tech.html",
                            user=current_user,
                            tech=tech,
                            polluts=polluts)
@@ -170,7 +170,7 @@ def add_retrofit():
             # redirect to tech page
             return view_techs()
 
-    return render_template("new-tech.html",
+    return render_template("retrofit_html/new-tech.html",
                            user=current_user,
                            types=all_asset_types,
                            polluts=all_polluts,
@@ -200,6 +200,6 @@ def edit_retrofit(retrofit_id):
         tech.description = new_tech_description
         db.session.commit()
         flash('tech updated!', category='success')
-    return render_template("edit-tech.html",
+    return render_template("retrofit_html/edit-tech.html",
                            user=current_user,
                            tech=tech)

@@ -1,6 +1,8 @@
 from . import db
 from flask_login import UserMixin
 from sqlalchemy.sql import func
+import datetime
+import numpy as np
 
 
 class User(db.Model, UserMixin):
@@ -12,6 +14,7 @@ class User(db.Model, UserMixin):
     managesFleets = db.relationship('ManagesFleet', cascade="all, delete")
     ownsTech = db.relationship('OwnsTech', cascade="all, delete")
     ownsAssets = db.relationship('OwnsAsset', cascade="all, delete")
+    savedOpt = db.relationship('SavedOpt', cascade="all, delete")
 
     def getAssets(self):
         """
@@ -49,6 +52,13 @@ class User(db.Model, UserMixin):
                 techs.append(to)
         return techs
 
+    def getScenarios(self):
+        opts = []
+        for savedOpt in self.savedOpt:
+            opt = Optimization.query.get(savedOpt.opt_id)
+            opts.append(opt)
+        return opts
+
 
 class Fleet(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -73,6 +83,16 @@ class Fleet(db.Model):
             techs.append(containsAsset.get_tech())
             nums.append(containsAsset.get_num_assets())
         return assets, techs, nums
+
+    def get_non_dup_assets(self):
+        all_assets = self.getAssetsinFleet()[0]
+        assets = [all_assets[0]]
+        past = all_assets[0]
+        for i in range(len(all_assets)):
+            if (past != all_assets[i]):
+                assets.append(all_assets[i])
+                past = all_assets[i]
+        return assets
 
     def getAssetTechNames(self):
         tech_names = []
@@ -298,14 +318,57 @@ class Objective(db.Model):
 
 
 class Optimization(db.Model):
+    name = db.Column(db.String(150))
+    datetime = db.Column(db.DateTime, server_default=func.now())
     id = db.Column(db.Integer, primary_key=True)
     short_budget = db.Column(db.Integer)
     long_budget = db.Column(db.Integer)
     em_redux_req = db.Column(db.String(150))
+    # Below can be null
+    upper_bounds = db.Column(db.LargeBinary)
+    objective_results = db.Column(db.Float)
+    num_veh = db.Column(db.LargeBinary)
+    with_results = db.Column(db.LargeBinary)
+    without_results = db.Column(db.LargeBinary)
+    # Above can be null
     fleet = db.relationship('OptWith', cascade="all, delete")
     objective = db.relationship('OptObj', cascade="all, delete")
     pollutants = db.relationship('OptPollut', cascade="all, delete")
     retrofits = db.relationship('OptTech', cascade="all, delete")
+    savedOpt = db.relationship('SavedOpt', cascade="all, delete")
+
+    def get_assets(self):
+        all_assets = self.get_fleet().getAssetsinFleet()[0]
+        assets = [all_assets[0]]
+        past = all_assets[0]
+        for i in range(len(all_assets)):
+            if (past != all_assets[i]):
+                assets.append(all_assets[i])
+                past = all_assets[i]
+        return assets
+
+    def bytes_to_upper(self):
+        num_retros = len(self.get_retrofits())
+        num_assets = len(self.get_assets())
+        bytes = self.upper_bounds
+        upper = np.frombuffer(bytes, dtype=np.dtype(int))
+        upper_bounds = upper.reshape(
+            (num_assets, num_retros, num_retros))
+        return upper_bounds
+
+    def get_results(self):
+        num_retros = len(self.get_retrofits())
+        num_assets = len(self.get_assets())
+        obj = self.objective_results
+        withretro = np.frombuffer(self.with_results, dtype=np.dtype(float))
+        withoutretro = np.frombuffer(
+            self.without_results, dtype=np.dtype(float))
+        nv = np.frombuffer(
+            self.num_veh, dtype=np.dtype(int))
+        nv = nv.reshape((num_assets * num_retros * num_retros, 4))
+        return obj, withretro, withoutretro, nv
+
+    # def numpy_nv_to_array(self):
 
     def get_em_redux_req(self):
         split = self.em_redux_req.split(',')
@@ -318,6 +381,10 @@ class Optimization(db.Model):
         fleet_id = optwith.fleet_id
         fleet = Fleet.query.get(fleet_id)
         return fleet
+
+    def get_user(self):
+        fleet = self.get_fleet()
+        return fleet.getManager()[0]
 
     def get_objective(self):
         optobj = self.objective[0]
@@ -585,6 +652,22 @@ class ApplicableType(db.Model):
         b = Type.query.get(self.type_id)
         a.applicableType.append(self)
         b.applicableType.append(self)
+        db.session.add(a)
+        db.session.add(b)
+        db.session.add(self)
+        db.session.commit()
+
+
+class SavedOpt(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('user.id'))
+    opt_id = db.Column(db.Integer, db.ForeignKey('optimization.id'))
+
+    def link_SavedOpt(self):
+        a = User.query.get(self.user_id)
+        b = Optimization.query.get(self.opt_id)
+        a.savedOpt.append(self)
+        b.savedOpt.append(self)
         db.session.add(a)
         db.session.add(b)
         db.session.add(self)

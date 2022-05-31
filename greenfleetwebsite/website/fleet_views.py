@@ -16,7 +16,7 @@ fleet_views = Blueprint('fleet_views', __name__)
 @fleet_views.route('/fleets', methods=['GET', 'POST'])
 @login_required
 def view_fleets():
-    return render_template("fleets.html",
+    return render_template("fleet_html/fleets.html",
                            user=current_user,
                            data=current_user.getFleets())
 
@@ -40,7 +40,7 @@ def view_fleet(fleet_id):
     # TODO: make sure only owner of asset can access it
     fleet = Fleet.query.get(fleet_id)  # get asset
     assets = fleet.getAssetsinFleet()
-    return render_template("fleet.html",
+    return render_template("fleet_html/fleet.html",
                            user=current_user,
                            fleet=fleet,
                            assets=assets,
@@ -87,7 +87,7 @@ def add_fleet():
             flash('fleet added!', category='success')
             return view_fleets()
 
-    return render_template("new-fleet.html",
+    return render_template("fleet_html/new-fleet.html",
                            user=current_user,
                            data=current_user.getFleets(),
                            assets=all_user_assets,
@@ -123,7 +123,7 @@ def edit_fleet(fleet_id):
 
         db.session.commit()
         flash('Fleet updated!', category='success')
-    return render_template("edit-fleet.html",
+    return render_template("fleet_html/edit-fleet.html",
                            user=current_user,
                            fleet=fleet,
                            assets=all_user_assets,

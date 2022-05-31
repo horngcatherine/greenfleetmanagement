@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+
+{% block title %}
+Recommendation
+{% endblock %}
+
+{% block content%}
+<h1 align="center">{{ opt.name }}</h1>
+
+<ul class="list-group list-group-flush" id="assets">
+  Objective: {{opt.get_objective().name }}
+  <br>
+  Fleet: {{ opt.get_fleet().name }}
+  <br>
+  Date created: {{ opt.datetime }}
+  <br>
+  Objective value:
+  {{res}}
+  <br>
+  Pollutants:
+  {% for pollut in polluts %}
+  {{pollut.name}},
+  {% endfor %}
+
+  <br>
+  Retrofits:
+  {% for retro in retros %}
+  {{retro.name}},
+  {% endfor %}
+  <br>
+  Emission Reduction Requirements:
+  {{em_redux_req}}
+  <br>
+  Short-term Budget:
+  {{sb}}
+  <br>
+  Long-term Budget:
+  {{lb}}
+  <br>
+  Number of assets to change: <br>
+  {% for veh in nv %}
+  {{veh[0]}} change {{veh[1]}} to {{veh[2]}}: {{veh[3]}} <br>
+  {% endfor %}
+
+  Emissions if no retrofits changed: <br>
+  {{em_wout_retro}}
+
+  <br>
+  Emissions w/ retrofits changed: <br>
+  {{em_w_retro}}
+
+</ul>
+
+{% endblock %}

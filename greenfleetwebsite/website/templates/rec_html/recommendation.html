@@ -1,0 +1,38 @@
+{% extends "base.html" %}
+
+{% block title %}
+Recommendation
+{% endblock %}
+
+{% block content%}
+<h1 align="center">Scenario {{ opt.name }}</h1>
+
+<ul class="list-group list-group-flush" id="assets">
+  Objective: {{opt.get_objective().name }}
+  <br>
+  Fleet: {{ opt.get_fleet().name }}
+  <br>
+  Date created: {{ opt.datetime }}
+  <br>
+  Objective value:
+  {{obj}}
+  <br>
+  Number of assets to change: <br>
+  {% for veh in num_vehicles %}
+  {{veh[0]}} change {{veh[1]}} to {{veh[2]}}: {{veh[3]}} <br>
+  {% endfor %}
+  Emissions if no retrofits changed: {{em_wout_retro}}
+  <br>
+  Emissions w/ retrofits changed: {{em_w_retro}}
+  <br>
+  <form method="POST">
+    <div align="center">
+      <button type="submit" class="btn btn-primary">Save</button>
+    </div>
+  </form>
+
+  <br>
+
+</ul>
+
+{% endblock %}

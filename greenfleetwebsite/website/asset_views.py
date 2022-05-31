@@ -17,7 +17,7 @@ asset_views = Blueprint('asset_views', __name__)
 @asset_views.route('/assets', methods=['GET', 'POST'])
 @login_required
 def view_assets():
-    return render_template("assets.html",
+    return render_template("asset_html/assets.html",
                            user=current_user,
                            data=current_user.getAssets())
 
@@ -42,7 +42,7 @@ def view_asset(asset_id):
     # TODO: make sure only owner of asset can access it
     # view what fleet it's in
     asset = Asset.query.get(asset_id)  # get asset
-    return render_template("asset.html",
+    return render_template("asset_html/asset.html",
                            user=current_user,
                            asset=asset)
 
@@ -57,15 +57,6 @@ def add_asset():
     num_typ = len(all_asset_types)
     num_cat = len(all_cat)
     num_tech = len(all_tech)
-
-    flash('INFO!', category='information')
-
-    if request.method == 'INFO':
-        if request.form['flash_button']:
-            print("HI")
-            flash('INFO!', category='information')
-        else:
-            print("NOPE")
 
     if request.method == 'POST':
 
@@ -116,7 +107,7 @@ def add_asset():
             # redirect to asset page
             return view_assets()
 
-    return render_template("new-asset.html",
+    return render_template("asset_html/new-asset.html",
                            user=current_user,
                            typs=all_asset_types,
                            num_typs=list(range(num_typ)),
@@ -163,7 +154,7 @@ def edit_asset(asset_id):
         asset.setCategory(new_category)
         db.session.commit()
         flash('Asset updated!', category='success')
-    return render_template("edit-asset.html",
+    return render_template("asset_html/edit-asset.html",
                            user=current_user,
                            asset=asset,
                            category=asset.getCategory(),
@@ -196,5 +187,5 @@ def upload_assets():
             open_file = open(UPLOAD_FOLDER + filename, 'r')
             add_asset_from_csv(open_file)
             flash('Assets added!', category='success')
-    return render_template("upload-assets.html",
+    return render_template("asset_html/upload-assets.html",
                            user=current_user)

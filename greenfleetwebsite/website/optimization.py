@@ -6,7 +6,7 @@ from . import db
 
 
 def get_miles_idle_remaining(fleet):
-    assets, _, _ = fleet.getAssetsinFleet()
+    assets = fleet.get_non_dup_assets()
     l = len(assets)
     m = np.zeros((l,))
     i = np.zeros((l,))
@@ -20,15 +20,14 @@ def get_miles_idle_remaining(fleet):
 
 def get_current_fleet(fleet, retros):
     assets, techs, nums = fleet.getAssetsinFleet()
-    current = np.zeros((len(assets), len(retros)))
+    non_dup_assets = fleet.get_non_dup_assets()
+    current = np.zeros((len(non_dup_assets), len(retros)))
     for i in range(len(assets)):
-        all_nums = np.zeros((len(retros,)))
-        for j in range(len(retros)):
-            retro = retros[j]
-            for k in range(len(techs)):
-                if techs[k] == retro:
-                    all_nums[j] = nums[k]
-        current[i, :] = all_nums
+        for j in range(len(non_dup_assets)):
+            if (assets[i] == non_dup_assets[j]):
+                for k in range(len(retros)):
+                    if (retros[k] == techs[i]):
+                        current[j, k] = nums[i]
     return current
 
 
